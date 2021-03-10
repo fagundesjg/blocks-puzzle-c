@@ -25,6 +25,28 @@ typedef struct
     int size;
 } TBLOCOS;
 
+int is_num(const char *str);
+int list_empty(LIST list);
+NODE *node_create(int value);
+void list_add(LIST *list, int value);
+int list_pop(LIST *list);
+LIST *list_create();
+void list_free(LIST *list);
+TBLOCOS tblocos_create(int size);
+void tblocos_free(TBLOCOS *tblocos);
+void list_print(LIST *list);
+void tblocos_print(TBLOCOS tblocos);
+int list_has_value(LIST list, int value);
+int tblocos_index_of(TBLOCOS tblocos, int value);
+int tblocos_is_valid_index(TBLOCOS tblocos, int index);
+void tblocos_move_top(TBLOCOS *tblocos, int index_a, int index_b);
+void tblocos_back_above_elements_to_original_position(TBLOCOS *tblocos, int list_index, int value);
+int move_onto(TBLOCOS *tblocos, int a, int b);
+int move_over(TBLOCOS *tblocos, int a, int b);
+int pile(TBLOCOS *tblocos, int a, int b);
+int pile_onto(TBLOCOS *tblocos, int a, int b);
+int pile_over(TBLOCOS *tblocos, int a, int b);
+
 int is_num(const char *str)
 {
     while (*str != '\0')
@@ -255,13 +277,91 @@ int move_onto(TBLOCOS *tblocos, int a, int b)
     return FALSE;
 }
 
+int move_over(TBLOCOS *tblocos, int a, int b)
+{
+    int index_list_a = tblocos_index_of(*tblocos, a);
+    int index_list_b = tblocos_index_of(*tblocos, b);
+
+    if (index_list_a != -1 && index_list_b != -1 && index_list_a != index_list_b)
+    {
+        tblocos_back_above_elements_to_original_position(tblocos, index_list_a, a);
+        tblocos_move_top(tblocos, index_list_a, index_list_b);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+int pile(TBLOCOS *tblocos, int a, int b)
+{
+    int index_list_a = tblocos_index_of(*tblocos, a);
+    int index_list_b = tblocos_index_of(*tblocos, b);
+
+    if (index_list_a != -1 && index_list_b != -1 && index_list_a != index_list_b)
+    {
+        LIST *list_a = tblocos->lists[index_list_a];
+        LIST *list_b = tblocos->lists[index_list_b];
+        NODE *p = list_a->head->next;
+        int count = 0;
+
+        while (p != NULL)
+        {
+            if (p->value == a)
+            {
+                NODE *aux = list_b->tail;
+                list_b->tail->next = p;
+                list_b->tail = list_a->tail;
+                list_a->tail = p->prev;
+                list_a->tail->next = NULL;
+                p->prev = aux;
+                while (p != NULL)
+                {
+                    count++;
+                    p = p->next;
+                }
+                list_a->size -= count;
+                list_b->size += count;
+            }
+            else
+            {
+                p = p->next;
+            }
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
+int pile_onto(TBLOCOS *tblocos, int a, int b)
+{
+    int index_list_a = tblocos_index_of(*tblocos, a);
+    int index_list_b = tblocos_index_of(*tblocos, b);
+
+    if (index_list_a != -1 && index_list_b != -1 && index_list_a != index_list_b)
+    {
+        tblocos_back_above_elements_to_original_position(tblocos, index_list_b, b);
+        pile(tblocos, a, b);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+int pile_over(TBLOCOS *tblocos, int a, int b)
+{
+    int index_list_a = tblocos_index_of(*tblocos, a);
+    int index_list_b = tblocos_index_of(*tblocos, b);
+
+    if (index_list_a != -1 && index_list_b != -1 && index_list_a != index_list_b)
+    {
+        pile(tblocos, a, b);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 int main(int argc, char *argv[])
 {
-    int running = TRUE;
-    int i;
-    char input[30];
-    char cmds[4][30];
-    char *token;
+    char input[30], cmds[4][30], *token;
+    int i, a, b, error = FALSE, running = TRUE;
     TBLOCOS tblocos = tblocos_create(5);
 
     while (running)
@@ -298,12 +398,11 @@ int main(int argc, char *argv[])
             }
             else
             {
-                int index_a, index_b, error = FALSE;
                 if (is_num(cmds[1]) && is_num(cmds[3]))
                 {
-                    index_a = atoi(cmds[1]);
-                    index_b = atoi(cmds[3]);
-                    if (!(index_a >= 0 && index_a < tblocos.size && index_b >= 0 && index_b < tblocos.size))
+                    a = atoi(cmds[1]);
+                    b = atoi(cmds[3]);
+                    if (!(a >= 0 && a < tblocos.size && b >= 0 && b < tblocos.size))
                     {
                         error = TRUE;
                     }
@@ -321,16 +420,19 @@ int main(int argc, char *argv[])
                 {
                     if (strcmp(cmds[0], "move") == 0 && strcmp(cmds[2], "onto") == 0)
                     {
-                        move_onto(&tblocos, index_a, index_b);
+                        move_onto(&tblocos, a, b);
                     }
                     else if (strcmp(cmds[0], "move") == 0 && strcmp(cmds[2], "over") == 0)
                     {
+                        move_over(&tblocos, a, b);
                     }
                     else if (strcmp(cmds[0], "pile") == 0 && strcmp(cmds[2], "onto") == 0)
                     {
+                        pile_onto(&tblocos, a, b);
                     }
                     else if (strcmp(cmds[0], "pile") == 0 && strcmp(cmds[2], "over") == 0)
                     {
+                        pile_over(&tblocos, a, b);
                     }
 
                     else
