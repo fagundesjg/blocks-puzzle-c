@@ -2,8 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+//--------------------------------------------------
+// DEFINIÇÕES DE CONSTANTES
+
 #define TRUE 1
 #define FALSE 0
+
+//--------------------------------------------------
+// ESTRUTURAS DE DADOS
 
 typedef struct node
 {
@@ -25,27 +31,122 @@ typedef struct
     int size;
 } TBLOCOS;
 
+//--------------------------------------------------
+// CABEÇALHO DAS FUNÇÕES
+
+/**
+ * Função que recebe uma string e retorna TRUE caso seja um número ou FALSE caso contrário. 
+ * */
 int is_num(const char *str);
+
+/**
+ * Função que recebe uma lista e retorna TRUE caso ela esteja vazia ou FALSE caso contrário.
+ * */
 int list_empty(LIST list);
+
+/**
+ * Função que recebe um número e retorna um NODE alocado com seus respectivos apontamentos iniciais e o valor inserido.
+ * */
 NODE *node_create(int value);
+
+/**
+ * Função que recebe uma lista e um valor como parâmetro. O valor é inserido ao final da lista.
+ * */
 void list_add(LIST *list, int value);
+
+/**
+ * Função que recebe uma lista e remove o último elemento retornando o seu valor.
+ * */
 int list_pop(LIST *list);
+
+/**
+ * Função que cria uma lista vazia com uma célula cabeça/sentinela e que guarda a referência do primeiro e último elemento,
+ * além do tamanho da lista.
+ * Obs: A célula cabeça serve para facilitar algumas operações de apontamentos.
+ * */
 LIST *list_create();
+
+/**
+ * Função que libera todos os nós da lista da memória.
+ * */
 void list_free(LIST *list);
+
+/**
+ * Função responsável por criar uma estrutura de TBlocos do tamanho recebido por parâmetro.
+ * */
 TBLOCOS tblocos_create(int size);
+
+/**
+ * Função que libera da memória toda a estrutura de tblocos e reinicia seus valores.
+ * */
 void tblocos_free(TBLOCOS *tblocos);
+
+/**
+ * Função que imprime uma lista na tela de forma tradicional (horizontal).
+ * */
 void list_print(LIST *list);
+
+/**
+ * Função que imprime uma estrutura de tblocos na tela na forma vertical.
+ * */
 void tblocos_print(TBLOCOS tblocos);
+
+/**
+ * Função que recebe uma lista e um valor e retorna TRUE caso o valor esteja na lista ou FALSE caso contrário.
+ * */
 int list_has_value(LIST list, int value);
+
+/**
+ * Função que recebe uma estrutura de tblocos e um valor e retorna qual o índice do monte onde o mesmo se encontra ou -1.
+ * */
 int tblocos_index_of(TBLOCOS tblocos, int value);
+
+/**
+ * Função que recebe uma estrutura de tblocos e um índice e retorna TRUE se aquele índice é um índice existente dentro da estrutura ou
+ * FALSE caso contrário.
+ * */
 int tblocos_is_valid_index(TBLOCOS tblocos, int index);
+
+/**
+ * Função que recebe a estrutura tblocos e um índice de monte A e um índice de monte B.
+ * A função move o elemento do topo do monte A para o topo do monte B.
+ * */
 void tblocos_move_top(TBLOCOS *tblocos, int index_a, int index_b);
+
+/**
+ * Função que recebe uma estrutura de tblocos e o índice de um monte e um valor.
+ * Responsável por ir removendo os elementos do topo do monte do índice recebido e ir retornando-os aos seus montes originais
+ * até o monte ficar vazio ou encontrar o elemento de valor igual ao recebido no terceiro parâmetro.
+ * */
 void tblocos_back_above_elements_to_original_position(TBLOCOS *tblocos, int list_index, int value);
+
+/**
+ *  Move o bloco a para cima do bloco b retornando eventuais blocos que já estiverem sobre a ou b para as suas posições originais.
+ * */
 int move_onto(TBLOCOS *tblocos, int a, int b);
+
+/**
+ * Move o bloco a no topo do monte onde está o bloco b retornando eventuais blocos que já estiverem sobre a às suas posições originais.
+ * */
 int move_over(TBLOCOS *tblocos, int a, int b);
+
+/**
+ * Coloca o bloco a juntamente com todos os blocos que estiverem sobre ele sobre o monte que contém o bloco b.
+ * */
 int pile(TBLOCOS *tblocos, int a, int b);
+
+/**
+ * Move o bloco a juntamente com todos os blocos que estiverem sobre ele em cima do bloco b, retornando eventuais blocos que já estiverem sobre b às suas posições originais.
+ * */
 int pile_onto(TBLOCOS *tblocos, int a, int b);
+
+/**
+ * Coloca o bloco a juntamente com todos os blocos que estiverem sobre ele sobre o monte que contém o bloco b.
+ * */
 int pile_over(TBLOCOS *tblocos, int a, int b);
+
+//--------------------------------------------------
+// IMPLEMENTAÇÕES DAS FUNÇÕES
 
 int is_num(const char *str)
 {
